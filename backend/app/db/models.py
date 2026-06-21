@@ -2,9 +2,10 @@
 ORM models — the database schema expressed as Python classes.
 
 These tables back the platform's persistence layer:
-  * Document   — metadata for every uploaded file.
-  * Summary    — generated executive summaries (1:1 with a Document).
-  * QueryLog   — an audit trail of RAG questions and answers.
+  * Document      — metadata for every uploaded file.
+  * Summary       — generated executive summaries (1:1 with a Document).
+  * DocumentChunk — retrievable text chunks for RAG.
+  * ChatMessage   — document chat conversation history.
 
 Using an ORM (rather than raw SQL) gives us type-safe queries, automatic schema
 creation, and a clean migration path from SQLite to PostgreSQL.
@@ -79,9 +80,6 @@ class Document(Base):
     summary: Mapped["Summary | None"] = relationship(
         back_populates="document", cascade="all, delete-orphan", uselist=False
     )
-    queries: Mapped[list["QueryLog"]] = relationship(
-        back_populates="document", cascade="all, delete-orphan"
-    )
 
     def __repr__(self) -> str:  # pragma: no cover - debug helper
         return f"<Document id={self.id} filename={self.filename!r}>"
@@ -101,23 +99,6 @@ class Summary(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
 
     document: Mapped["Document"] = relationship(back_populates="summary")
-
-
-class QueryLog(Base):
-    """Audit record of a RAG question/answer interaction."""
-
-    __tablename__ = "query_logs"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    document_id: Mapped[int] = mapped_column(
-        ForeignKey("documents.id", ondelete="CASCADE"), nullable=False
-    )
-    question: Mapped[str] = mapped_column(Text, nullable=False)
-    answer: Mapped[str] = mapped_column(Text, default="")
-    model_used: Mapped[str] = mapped_column(String(100), default="")
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
-
-    document: Mapped["Document"] = relationship(back_populates="queries")
 
 
 class DocumentChunk(Base):

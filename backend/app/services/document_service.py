@@ -165,13 +165,23 @@ def create_document(
     return document
 
 
-def list_documents_for_user(db: Session, user_id: int) -> list[Document]:
-    """Return a user's documents, newest first (the upload history)."""
+def list_documents_for_user(
+    db: Session, user_id: int, limit: int | None = None, offset: int = 0
+) -> list[Document]:
+    """
+    Return a user's documents, newest first (the upload history).
+
+    Optional `limit`/`offset` enable pagination for API callers; internal
+    callers (similarity, analytics) omit them to fetch the full corpus.
+    """
     stmt = (
         select(Document)
         .where(Document.user_id == user_id)
         .order_by(Document.created_at.desc())
+        .offset(offset)
     )
+    if limit is not None:
+        stmt = stmt.limit(limit)
     return list(db.execute(stmt).scalars().all())
 
 

@@ -9,7 +9,7 @@ declared for accurate OpenAPI / Swagger documentation.
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, File, HTTPException, Response, UploadFile, status
+from fastapi import APIRouter, Depends, File, HTTPException, Query, Response, UploadFile, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
@@ -101,11 +101,15 @@ async def upload_document(
     summary="List documents (upload history)",
 )
 def list_documents(
+    limit: int = Query(100, ge=1, le=500, description="Max documents to return."),
+    offset: int = Query(0, ge=0, description="Number to skip (pagination)."),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> list[DocumentRead]:
-    """Return all documents owned by the authenticated user, newest first."""
-    documents = document_service.list_documents_for_user(db, current_user.id)
+    """Return documents owned by the authenticated user, newest first (paginated)."""
+    documents = document_service.list_documents_for_user(
+        db, current_user.id, limit=limit, offset=offset
+    )
     return [DocumentRead.model_validate(d) for d in documents]
 
 

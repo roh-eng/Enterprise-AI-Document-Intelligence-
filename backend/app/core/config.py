@@ -15,9 +15,9 @@ from __future__ import annotations
 
 from functools import lru_cache
 from pathlib import Path
-from typing import List
+from typing import ClassVar, List
 
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Project root = three levels up from this file
@@ -69,7 +69,6 @@ class Settings(BaseSettings):
     EMBEDDING_MODEL: str = "all-MiniLM-L6-v2"
     SPACY_MODEL: str = "en_core_web_sm"
     FAISS_INDEX_PATH: str = "./data/faiss_index"
-    CHURN_MODEL_PATH: str = "./backend/app/ml/artifacts/churn_model.joblib"
 
     # Pydantic config: read from `.env`, ignore unknown keys, case-insensitive.
     model_config = SettingsConfigDict(
@@ -79,6 +78,9 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
+    # The insecure placeholder secret; safe only for local development.
+    _DEV_SECRET: ClassVar[str] = "CHANGE_ME_dev_only_insecure_secret"
+
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
     def _split_cors(cls, value: object) -> object:
@@ -86,6 +88,20 @@ class Settings(BaseSettings):
         if isinstance(value, str):
             return [origin.strip() for origin in value.split(",") if origin.strip()]
         return value
+
+    @model_validator(mode="after")
+    def _require_secret_in_production(self) -> "Settings":
+        """
+        Fail fast: refuse to boot in production with the default JWT secret.
+        This prevents the classic "forgot to set the secret" deploy that leaves
+        every token forgeable.
+        """
+        if self.ENVIRONMENT.lower() == "production" and self.JWT_SECRET_KEY == self._DEV_SECRET:
+            raise ValueError(
+                "JWT_SECRET_KEY must be set to a strong value in production "
+                "(generate: python -c \"import secrets; print(secrets.token_hex(32))\")."
+            )
+        return self
 
     @property
     def gemini_enabled(self) -> bool:

@@ -191,6 +191,11 @@ def train() -> dict[str, Any]:
     METRICS_PATH.write_text(json.dumps(report, indent=2), encoding="utf-8")
     logger.info("Saved model -> %s", MODEL_PATH)
     logger.info("Saved metrics -> %s", METRICS_PATH)
+
+    # Hot-swap the served model (lazy import avoids a circular dependency).
+    from app.ml import classifier
+
+    classifier.reload_model()
     return report
 
 

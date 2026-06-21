@@ -31,6 +31,9 @@ class APIClient:
 
     def __init__(self, base_url: str = DEFAULT_BASE_URL) -> None:
         self.base_url = base_url.rstrip("/")
+        # Reuse one HTTP session so TCP connections are pooled/kept-alive across
+        # calls instead of re-handshaking on every request.
+        self._session = requests.Session()
 
     # -- internal helpers --------------------------------------------------
     def _url(self, path: str) -> str:
@@ -58,7 +61,7 @@ class APIClient:
     def _safe_request(self, method: str, path: str, **kwargs) -> Result:
         """Run a request, turning connection problems into a clean error tuple."""
         try:
-            response = requests.request(method, self._url(path), timeout=_TIMEOUT, **kwargs)
+            response = self._session.request(method, self._url(path), timeout=_TIMEOUT, **kwargs)
             return self._handle(response)
         except requests.ConnectionError:
             logger.error("Backend unreachable at %s", self.base_url)

@@ -46,6 +46,15 @@ def _load_bundle() -> dict[str, Any]:
     return joblib.load(MODEL_PATH)
 
 
+def reload_model() -> None:
+    """
+    Drop the cached model so the next call reloads from disk. Call this after
+    retraining to hot-swap the served model without restarting the process.
+    """
+    _load_bundle.cache_clear()
+    logger.info("Classifier cache cleared; model will reload on next use")
+
+
 def model_info() -> dict[str, Any]:
     """Return metadata about the loaded model (name, categories, train time)."""
     bundle = _load_bundle()
