@@ -14,9 +14,23 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
+from app.core.config import get_settings
 from app.db.base import Base
 from app.db.session import get_db
 from app.main import app
+
+
+@pytest.fixture(autouse=True)
+def _isolated_upload_dir(tmp_path):
+    """
+    Redirect file storage to a per-test temp directory so tests never pollute
+    the real data/uploads folder. Restored afterwards.
+    """
+    settings = get_settings()
+    original = settings.UPLOAD_DIR
+    settings.UPLOAD_DIR = str(tmp_path / "uploads")
+    yield
+    settings.UPLOAD_DIR = original
 
 
 @pytest.fixture()

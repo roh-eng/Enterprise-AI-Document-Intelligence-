@@ -90,10 +90,24 @@ uvicorn app.main:app --reload
 - [x] **Week 1 — Foundation & Auth**: structure, config, logging, SQLite + SQLAlchemy
   models, JWT auth (register/login), password hashing, Streamlit login + dashboard +
   upload page, tests.
-- [ ] **Week 2 — NLP service**: spaCy/NLTK preprocessing, entities, keywords.
-- [ ] **Week 3 — ML service**: XGBoost churn/classification model + training script.
-- [ ] **Week 4 — RAG pipeline**: Sentence-Transformers + FAISS + LangChain + Gemini.
-- [ ] **Week 5 — Tests, Docker, CI**.
+- [x] **Week 2 — Document Upload System**: PDF/DOCX/TXT upload, on-disk file storage,
+  text extraction + cleaning, upload history, document detail, delete, ownership
+  enforcement, exception handling, 15 tests.
+- [ ] **Week 3 — NLP service**: spaCy/NLTK preprocessing, entities, keywords.
+- [ ] **Week 4 — ML service**: XGBoost churn/classification model + training script.
+- [ ] **Week 5 — RAG pipeline**: Sentence-Transformers + FAISS + LangChain + Gemini.
+- [ ] **Week 6 — Docker, CI**.
+
+## 📑 Document API (Week 2)
+| Method | Path | Purpose | Codes |
+|--------|------|---------|-------|
+| POST | `/documents/upload` | Upload PDF/DOCX/TXT → extract, clean, store | 201, 400, 413, 415, 422 |
+| GET | `/documents` | Upload history (newest first) | 200 |
+| GET | `/documents/{id}` | Document metadata + cleaned text | 200, 404 |
+| DELETE | `/documents/{id}` | Delete document (DB row + stored file) | 204, 404 |
+
+All require `Authorization: Bearer <token>`. Files are stored at
+`data/uploads/<user_id>/<uuid>__<filename>` and are deleted alongside their DB row.
 
 ## 🔑 Authentication flow (Week 1)
 ```

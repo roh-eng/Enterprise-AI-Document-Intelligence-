@@ -47,6 +47,11 @@ class Settings(BaseSettings):
     # --- Database ----------------------------------------------------------
     DATABASE_URL: str = "sqlite:///./data/app.db"
 
+    # --- File storage ------------------------------------------------------
+    # Directory where uploaded source files are persisted on disk.
+    UPLOAD_DIR: str = "./data/uploads"
+    MAX_UPLOAD_MB: int = 10
+
     # --- Authentication / JWT ----------------------------------------------
     # SECURITY: override JWT_SECRET_KEY in .env for any non-local deployment.
     JWT_SECRET_KEY: str = "CHANGE_ME_dev_only_insecure_secret"
@@ -99,6 +104,21 @@ class Settings(BaseSettings):
         raw = url.split("sqlite:///", 1)[-1]
         path = Path(raw)
         return path if path.is_absolute() else (BASE_DIR / path).resolve()
+
+    @property
+    def upload_path(self) -> Path:
+        """
+        Absolute directory for stored uploads, anchored to BASE_DIR when the
+        configured path is relative (so it's CWD-independent, like the DB).
+        """
+        path = Path(self.UPLOAD_DIR)
+        resolved = path if path.is_absolute() else (BASE_DIR / path)
+        return resolved.resolve()
+
+    @property
+    def max_upload_bytes(self) -> int:
+        """Upload size ceiling in bytes."""
+        return self.MAX_UPLOAD_MB * 1024 * 1024
 
     @property
     def database_url(self) -> str:

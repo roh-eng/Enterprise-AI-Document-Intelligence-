@@ -96,6 +96,17 @@ class APIClient:
             "GET", "/documents", headers=self._auth_header(token)
         )
 
+    def get_document(self, token: str, document_id: int) -> Result:
+        return self._safe_request(
+            "GET", f"/documents/{document_id}", headers=self._auth_header(token)
+        )
+
+    def delete_document(self, token: str, document_id: int) -> Result:
+        # 204 No Content returns an empty body; _handle still reports success.
+        return self._safe_request(
+            "DELETE", f"/documents/{document_id}", headers=self._auth_header(token)
+        )
+
     def upload_document(
         self, token: str, filename: str, data: bytes, content_type: str
     ) -> Result:

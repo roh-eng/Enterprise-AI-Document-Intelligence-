@@ -16,10 +16,10 @@ from utils.api_client import APIClient
 def render_upload(client: APIClient, token: str) -> None:
     """Render the file upload form and handle submission."""
     st.markdown("## 📤 Upload a document")
-    st.caption("Upload a PDF or TXT file. We'll extract its text and store it securely.")
+    st.caption("Upload a PDF, DOCX, or TXT file. We'll extract & clean its text and store it securely.")
 
     uploaded = st.file_uploader(
-        "Choose a file", type=["pdf", "txt"], accept_multiple_files=False
+        "Choose a file", type=["pdf", "docx", "txt"], accept_multiple_files=False
     )
 
     if uploaded is not None:

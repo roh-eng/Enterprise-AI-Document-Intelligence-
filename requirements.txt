@@ -45,6 +45,7 @@ google-generativeai>=0.5         # Gemini API
 
 # --- Document parsing ------------------------------------------------------
 pypdf>=4.0
+python-docx>=1.1                 # DOCX (Word) text extraction
 
 # --- Utilities -------------------------------------------------------------
 python-dotenv>=1.0

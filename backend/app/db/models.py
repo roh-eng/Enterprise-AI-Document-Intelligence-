@@ -58,9 +58,15 @@ class Document(Base):
     )
     filename: Mapped[str] = mapped_column(String(255), nullable=False)
     content_type: Mapped[str] = mapped_column(String(100), nullable=False)
+    file_ext: Mapped[str] = mapped_column(String(10), default="")
+    file_size: Mapped[int] = mapped_column(Integer, default=0)
+    # Path to the raw source file persisted on disk.
+    storage_path: Mapped[str] = mapped_column(String(512), default="")
     num_chars: Mapped[int] = mapped_column(Integer, default=0)
     num_chunks: Mapped[int] = mapped_column(Integer, default=0)
-    # Full extracted text. In production this would move to object storage.
+    # Processing status: uploaded -> processed (or failed).
+    status: Mapped[str] = mapped_column(String(20), default="uploaded")
+    # Full cleaned text. In production this would move to object storage.
     extracted_text: Mapped[str] = mapped_column(Text, default="")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
 

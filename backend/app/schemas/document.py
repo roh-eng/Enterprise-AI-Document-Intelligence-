@@ -1,8 +1,8 @@
 """
 Pydantic schemas for documents.
 
-`DocumentRead` is the serialised view of a `Document` ORM row returned to the
-frontend (e.g. on the dashboard list and after an upload).
+  * DocumentRead   — list/summary view shown on the dashboard & upload result.
+  * DocumentDetail — extends DocumentRead with the cleaned text body.
 """
 
 from __future__ import annotations
@@ -13,13 +13,22 @@ from pydantic import BaseModel, ConfigDict
 
 
 class DocumentRead(BaseModel):
-    """Public representation of an uploaded document."""
+    """Metadata view of an uploaded document (no body, keeps lists light)."""
 
     id: int
     filename: str
     content_type: str
+    file_ext: str
+    file_size: int
     num_chars: int
     num_chunks: int
+    status: str
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class DocumentDetail(DocumentRead):
+    """Full document view including the cleaned, extracted text."""
+
+    extracted_text: str
