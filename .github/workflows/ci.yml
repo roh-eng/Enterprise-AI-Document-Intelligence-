@@ -1,0 +1,52 @@
+name: CI
+
+# Run on pushes and PRs to the main branches.
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test:
+    name: Test (pytest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download NLP model data
+        run: |
+          python -m spacy download en_core_web_sm
+          python -m nltk.downloader wordnet omw-1.4 vader_lexicon punkt
+
+      - name: Cache the sentence-transformers model
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: hf-${{ runner.os }}-all-MiniLM-L6-v2
+
+      - name: Run tests
+        working-directory: backend
+        run: pytest -q
+
+  docker-build:
+    name: Build Docker images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Validates both Dockerfiles build cleanly (no push).
+      - name: Build backend image
+        run: docker build -f Dockerfile.backend -t aidoc-backend:ci .
+
+      - name: Build frontend image
+        run: docker build -f Dockerfile.frontend -t aidoc-frontend:ci .

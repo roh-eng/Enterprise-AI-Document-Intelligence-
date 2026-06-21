@@ -112,7 +112,33 @@ uvicorn app.main:app --reload
   classification / sentiment / search stats), charted Streamlit dashboard,
   document management page, admin dashboard (first-user-admin + role-gated),
   dark theme, premium CSS, responsive layout, 52 tests.
-- [ ] **Week 8 — Docker, CI**.
+- [x] **Week 8 — Production Deployment**: Dockerized backend + frontend, Docker
+  Compose, GitHub Actions CI/CD, unit + API tests (63 total), deployment guide,
+  Mermaid diagrams (architecture/flow/sequence/ER), and the interview/resume pack.
+
+✅ **All 8 weeks complete** — 63 passing tests, 9 commits.
+
+## 🚢 Deploy (Docker Compose)
+```bash
+cp .env.example .env          # set JWT_SECRET_KEY (+ optional GEMINI_API_KEY)
+docker compose up --build
+# Frontend → http://localhost:8501   ·   API docs → http://localhost:8000/docs
+```
+Full instructions, PostgreSQL switch, and production hardening:
+**[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**.
+
+## 📚 Documentation
+- **[docs/DIAGRAMS.md](docs/DIAGRAMS.md)** — architecture, data-flow, sequence (RAG), and ER diagrams.
+- **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** — deploy + production hardening guide.
+- **[docs/INTERVIEW.md](docs/INTERVIEW.md)** — resume bullet, STAR stories, HR + technical talking points, future work.
+- **[docs/SCREENSHOTS.md](docs/SCREENSHOTS.md)** — screenshot capture guide.
+
+## 🧪 Tests & CI
+```bash
+cd backend && pytest          # 63 tests: unit + API integration (in-memory DB)
+```
+GitHub Actions (`.github/workflows/ci.yml`) runs the suite and builds both Docker
+images on every push/PR to `main`/`master`.
 
 ## 📊 Analytics & Admin (Week 7)
 - `GET /analytics/me` — per-user KPIs + distributions (uploads-by-date, file

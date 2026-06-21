@@ -1,0 +1,62 @@
+# ===========================================================================
+# Local / single-host deployment of the AI Document Intelligence Platform.
+#   docker compose up --build
+#   Frontend: http://localhost:8501   ·   API docs: http://localhost:8000/docs
+#
+# Secrets (JWT_SECRET_KEY, GEMINI_API_KEY) come from a local .env file
+# (copy .env.example -> .env). They are NEVER baked into the images.
+# ===========================================================================
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    env_file:
+      - .env
+    environment:
+      # Container-absolute paths backed by the shared volume.
+      DATABASE_URL: "sqlite:////data/app.db"
+      UPLOAD_DIR: "/data/uploads"
+      FAISS_INDEX_PATH: "/data/faiss"
+      ENVIRONMENT: "production"
+      DEBUG: "false"
+      # Allow the frontend container/host to call the API.
+      CORS_ORIGINS: "http://localhost:8501,http://127.0.0.1:8501"
+    volumes:
+      - app-data:/data
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    environment:
+      # Service name resolves on the compose network.
+      API_BASE_URL: "http://backend:8000"
+    ports:
+      - "8501:8501"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+# ---------------------------------------------------------------------------
+# PostgreSQL for production (uncomment + set DATABASE_URL on the backend to
+# postgresql+psycopg2://app:app@db:5432/app, and add psycopg2-binary to deps):
+#
+#  db:
+#    image: postgres:16-alpine
+#    environment:
+#      POSTGRES_USER: app
+#      POSTGRES_PASSWORD: app
+#      POSTGRES_DB: app
+#    volumes:
+#      - pg-data:/var/lib/postgresql/data
+#    restart: unless-stopped
+# ---------------------------------------------------------------------------
+
+volumes:
+  app-data:
+  # pg-data:

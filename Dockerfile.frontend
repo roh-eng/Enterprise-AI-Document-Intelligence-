@@ -1,0 +1,29 @@
+# ===========================================================================
+# Frontend image — Streamlit UI only (talks to the backend over HTTP).
+# Kept lean: the UI needs just streamlit + requests, not the ML stack.
+# Build from the repo root: docker build -f Dockerfile.frontend -t aidoc-frontend .
+# ===========================================================================
+FROM python:3.12-slim
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1
+
+WORKDIR /app
+
+# The frontend's only runtime dependencies.
+RUN pip install --no-cache-dir "streamlit>=1.32" "requests>=2.31"
+
+COPY frontend/ ./frontend/
+COPY .streamlit/ ./.streamlit/
+
+RUN useradd --create-home appuser && chown -R appuser /app
+USER appuser
+
+EXPOSE 8501
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+    CMD python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8501/_stcore/health').status==200 else 1)"
+
+CMD ["streamlit", "run", "frontend/app.py", \
+     "--server.port=8501", "--server.address=0.0.0.0", "--server.headless=true"]

@@ -1,0 +1,41 @@
+# ===========================================================================
+# Backend image — FastAPI + ML/NLP/GenAI/RAG stack.
+# Build from the repo root:  docker build -f Dockerfile.backend -t aidoc-backend .
+# ===========================================================================
+FROM python:3.12-slim AS base
+
+# libgomp1 is the OpenMP runtime required by xgboost, scikit-learn, and faiss.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    NLTK_DATA=/usr/share/nltk_data
+
+WORKDIR /app
+
+# Install Python deps first (cached layer) then download model data once.
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt \
+    && python -m spacy download en_core_web_sm \
+    && python -m nltk.downloader -d /usr/share/nltk_data wordnet omw-1.4 vader_lexicon punkt
+
+# Application code.
+COPY backend/ ./backend/
+WORKDIR /app/backend
+
+# Drop root privileges.
+RUN useradd --create-home appuser && chown -R appuser /app
+USER appuser
+
+EXPOSE 8000
+
+# Liveness probe hitting the /health endpoint (no curl in slim images).
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+    CMD python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/health').status==200 else 1)"
+
+# Single worker by default (SQLite-friendly). For production scale, switch to
+# PostgreSQL and run multiple workers (see docs/DEPLOYMENT.md).
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
