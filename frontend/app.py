@@ -18,6 +18,7 @@ import streamlit as st
 
 from utils.api_client import APIClient
 from views.auth_view import render_auth
+from views.chat_view import render_chat
 from views.classify_view import render_classify
 from views.dashboard_view import render_dashboard
 from views.genai_view import render_genai
@@ -73,7 +74,7 @@ def main() -> None:
     st.sidebar.markdown(f"**Signed in as**\n\n`{user.get('username', 'user')}`")
     page = st.sidebar.radio(
         "Navigate",
-        ["🏠 Dashboard", "📤 Upload", "🔮 Classify", "🧬 NLP", "✨ GenAI"],
+        ["🏠 Dashboard", "📤 Upload", "🔮 Classify", "🧬 NLP", "✨ GenAI", "💬 Chat"],
         label_visibility="collapsed",
     )
     st.sidebar.divider()
@@ -89,8 +90,10 @@ def main() -> None:
         render_classify(client, token)
     elif page == "🧬 NLP":
         render_nlp(client, token)
-    else:
+    elif page == "✨ GenAI":
         render_genai(client, token)
+    else:
+        render_chat(client, token)
 
 
 if __name__ == "__main__":

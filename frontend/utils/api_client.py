@@ -174,3 +174,25 @@ class APIClient:
         return self._safe_request(
             "POST", "/genai/generate", headers=self._auth_header(token), json=body
         )
+
+    # -- rag / chat --------------------------------------------------------
+    def rag_index(self, token: str, document_id: int) -> Result:
+        return self._safe_request(
+            "POST", f"/documents/{document_id}/index", headers=self._auth_header(token)
+        )
+
+    def rag_chat(self, token: str, document_id: int, question: str) -> Result:
+        return self._safe_request(
+            "POST", f"/documents/{document_id}/chat",
+            headers=self._auth_header(token), json={"question": question},
+        )
+
+    def rag_history(self, token: str, document_id: int) -> Result:
+        return self._safe_request(
+            "GET", f"/documents/{document_id}/chat/history", headers=self._auth_header(token)
+        )
+
+    def rag_clear_history(self, token: str, document_id: int) -> Result:
+        return self._safe_request(
+            "DELETE", f"/documents/{document_id}/chat/history", headers=self._auth_header(token)
+        )

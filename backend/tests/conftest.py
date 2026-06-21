@@ -31,16 +31,21 @@ def _clear_genai_cache():
 
 
 @pytest.fixture(autouse=True)
-def _isolated_upload_dir(tmp_path):
+def _isolated_storage(tmp_path):
     """
-    Redirect file storage to a per-test temp directory so tests never pollute
-    the real data/uploads folder. Restored afterwards.
+    Redirect file storage and the FAISS index dir to per-test temp directories,
+    and clear the in-memory FAISS index cache, so tests never pollute real data.
     """
+    from app.rag import vector_store
+
     settings = get_settings()
-    original = settings.UPLOAD_DIR
+    original_upload, original_faiss = settings.UPLOAD_DIR, settings.FAISS_INDEX_PATH
     settings.UPLOAD_DIR = str(tmp_path / "uploads")
+    settings.FAISS_INDEX_PATH = str(tmp_path / "faiss")
+    vector_store._INDEX_CACHE.clear()
     yield
-    settings.UPLOAD_DIR = original
+    settings.UPLOAD_DIR, settings.FAISS_INDEX_PATH = original_upload, original_faiss
+    vector_store._INDEX_CACHE.clear()
 
 
 @pytest.fixture()

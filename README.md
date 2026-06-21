@@ -104,8 +104,27 @@ uvicorn app.main:app --reload
   SDK), summary / explain / FAQ / interview-questions / action-items / deadlines,
   system+safety+user prompt engineering, response caching, cost controls,
   offline fallbacks, 39 tests.
-- [ ] **Week 6 — RAG pipeline**: FAISS + LangChain + Gemini grounded Q&A.
+- [x] **Week 6 — RAG System**: LangChain chunking, sentence-transformers
+  embeddings, FAISS vector index, semantic retrieval, grounded chat with source
+  citations, conversation history, Gemini answer generation with offline
+  fallback, 46 tests.
 - [ ] **Week 7 — Docker, CI**.
+
+## 💬 RAG System (Week 6)
+```
+document → chunk (LangChain) → embed (sentence-transformers) → FAISS index
+question → embed → FAISS search (top-k) → build cited context → Gemini → grounded answer
+```
+Chunk text lives in the DB (source of truth); FAISS (`IndexFlatIP` on normalised
+vectors = cosine) holds the vectors, persisted per document. Retrieval degrades
+to in-memory cosine if FAISS/sentence-transformers are absent.
+
+**Endpoints** (auth + ownership enforced):
+`POST /documents/{id}/index`, `POST /documents/{id}/chat` (answer + citations),
+`GET /documents/{id}/chat/history`, `DELETE /documents/{id}/chat/history`.
+
+> Every answer cites the passages it used. When `GEMINI_API_KEY` is unset, an
+> extractive fallback still answers *and cites its source* — RAG's core promise.
 
 ## ✨ Generative AI Module (Week 5)
 One endpoint, six tasks, two input sources (text or stored document):

@@ -124,6 +124,13 @@ class Settings(BaseSettings):
         return self.MAX_UPLOAD_MB * 1024 * 1024
 
     @property
+    def faiss_path(self) -> Path:
+        """Absolute directory for persisted FAISS indexes (CWD-independent)."""
+        path = Path(self.FAISS_INDEX_PATH)
+        resolved = path if path.is_absolute() else (BASE_DIR / path)
+        return resolved.resolve()
+
+    @property
     def database_url(self) -> str:
         """
         The connection URL the engine should actually use. For SQLite we return
