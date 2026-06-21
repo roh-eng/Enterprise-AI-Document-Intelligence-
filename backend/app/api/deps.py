@@ -65,3 +65,12 @@ def get_current_user(
             status_code=status.HTTP_403_FORBIDDEN, detail="Inactive user account"
         )
     return user
+
+
+def get_current_admin(current_user: User = Depends(get_current_user)) -> User:
+    """Like get_current_user, but rejects non-admins with 403."""
+    if not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required"
+        )
+    return current_user

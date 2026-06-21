@@ -31,6 +31,7 @@ class UserRead(UserBase):
 
     id: int
     is_active: bool
+    is_admin: bool
     created_at: datetime
 
     # Allow building this schema directly from a SQLAlchemy ORM object.

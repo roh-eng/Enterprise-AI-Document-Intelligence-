@@ -196,3 +196,10 @@ class APIClient:
         return self._safe_request(
             "DELETE", f"/documents/{document_id}/chat/history", headers=self._auth_header(token)
         )
+
+    # -- analytics ---------------------------------------------------------
+    def analytics_me(self, token: str) -> Result:
+        return self._safe_request("GET", "/analytics/me", headers=self._auth_header(token))
+
+    def analytics_admin(self, token: str) -> Result:
+        return self._safe_request("GET", "/analytics/admin", headers=self._auth_header(token))

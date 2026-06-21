@@ -1,0 +1,15 @@
+# Streamlit theme + server configuration.
+# A professional dark theme is the default; users can still switch to light via
+# the built-in Settings menu (top-right hamburger).
+
+[theme]
+base = "dark"
+primaryColor = "#7c3aed"            # violet accent (buttons, sliders)
+backgroundColor = "#0e1117"         # main canvas
+secondaryBackgroundColor = "#1c2333"  # cards, sidebar, inputs
+textColor = "#fafafa"
+font = "sans serif"
+
+[server]
+# Keep file uploads reasonable; the backend enforces its own limit too.
+maxUploadSize = 15

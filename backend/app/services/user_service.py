@@ -53,10 +53,15 @@ def create_user(db: Session, payload: UserCreate) -> User:
     if get_user_by_email(db, payload.email):
         raise DuplicateUserError("Email already registered")
 
+    # Bootstrap: the very first registered user becomes the admin. This avoids
+    # shipping hard-coded credentials while still giving the platform an owner.
+    is_first_user = db.query(User.id).first() is None
+
     user = User(
         username=payload.username,
         email=payload.email,
         hashed_password=hash_password(payload.password),
+        is_admin=is_first_user,
     )
     db.add(user)
     db.commit()

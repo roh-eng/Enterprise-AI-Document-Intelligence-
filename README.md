@@ -108,7 +108,23 @@ uvicorn app.main:app --reload
   embeddings, FAISS vector index, semantic retrieval, grounded chat with source
   citations, conversation history, Gemini answer generation with offline
   fallback, 46 tests.
-- [ ] **Week 7 — Docker, CI**.
+- [x] **Week 7 — Professional Dashboard**: analytics service (upload /
+  classification / sentiment / search stats), charted Streamlit dashboard,
+  document management page, admin dashboard (first-user-admin + role-gated),
+  dark theme, premium CSS, responsive layout, 52 tests.
+- [ ] **Week 8 — Docker, CI**.
+
+## 📊 Analytics & Admin (Week 7)
+- `GET /analytics/me` — per-user KPIs + distributions (uploads-by-date, file
+  types, categories, sentiment) + recent search/upload history. Sentiment is
+  computed on the fly (VADER) so no extra column/migration is needed.
+- `GET /analytics/admin` — platform-wide stats (users, documents, docs-per-user,
+  category/file-type mix). **Role-gated**: the *first registered user* becomes
+  admin (no hard-coded credentials); others get 403.
+
+**UI**: dark theme via `.streamlit/config.toml` (users can switch in Settings),
+gradient hero + elevated metric cards via injected CSS, responsive `st.columns`
+chart grid, and a sidebar that only shows the 🛡️ Admin page to admins.
 
 ## 💬 RAG System (Week 6)
 ```
