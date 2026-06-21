@@ -10,10 +10,11 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from app.api.routes import auth, documents, ml, nlp
+from app.api.routes import auth, documents, genai, ml, nlp
 
 api_router = APIRouter()
 api_router.include_router(auth.router)
 api_router.include_router(documents.router)
 api_router.include_router(ml.router)
 api_router.include_router(nlp.router)
+api_router.include_router(genai.router)

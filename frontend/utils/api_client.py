@@ -156,3 +156,21 @@ class APIClient:
         return self._safe_request(
             "GET", f"/documents/{document_id}/similar", headers=self._auth_header(token)
         )
+
+    # -- generative ai -----------------------------------------------------
+    def genai_status(self, token: str) -> Result:
+        return self._safe_request(
+            "GET", "/genai/status", headers=self._auth_header(token)
+        )
+
+    def genai_generate(
+        self, token: str, task: str, text: str | None = None, document_id: int | None = None
+    ) -> Result:
+        body: dict = {"task": task}
+        if document_id is not None:
+            body["document_id"] = document_id
+        else:
+            body["text"] = text
+        return self._safe_request(
+            "POST", "/genai/generate", headers=self._auth_header(token), json=body
+        )

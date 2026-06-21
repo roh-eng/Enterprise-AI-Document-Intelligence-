@@ -41,7 +41,7 @@ sentence-transformers>=2.6
 faiss-cpu>=1.8
 langchain>=0.1.16
 langchain-community>=0.0.34
-google-generativeai>=0.5         # Gemini API
+google-genai>=1.0                # Gemini API (maintained SDK; google-generativeai is deprecated)
 
 # --- Document parsing ------------------------------------------------------
 pypdf>=4.0

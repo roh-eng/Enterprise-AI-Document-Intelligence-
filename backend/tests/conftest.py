@@ -21,6 +21,16 @@ from app.main import app
 
 
 @pytest.fixture(autouse=True)
+def _clear_genai_cache():
+    """Clear the GenAI response cache so tests don't see each other's results."""
+    from app.genai import generator
+
+    generator._CACHE.clear()
+    yield
+    generator._CACHE.clear()
+
+
+@pytest.fixture(autouse=True)
 def _isolated_upload_dir(tmp_path):
     """
     Redirect file storage to a per-test temp directory so tests never pollute

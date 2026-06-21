@@ -100,8 +100,31 @@ uvicorn app.main:app --reload
 - [x] **Week 4 — NLP Module**: tokenization, stopword removal, lemmatization,
   spaCy NER, TF-IDF keyword extraction, sentence embeddings, cosine + document
   similarity, NLTK-VADER sentiment, NLP dashboard, 29 tests.
-- [ ] **Week 5 — RAG pipeline**: FAISS + LangChain + Gemini.
-- [ ] **Week 6 — Docker, CI**.
+- [x] **Week 5 — Generative AI**: Gemini integration (maintained `google-genai`
+  SDK), summary / explain / FAQ / interview-questions / action-items / deadlines,
+  system+safety+user prompt engineering, response caching, cost controls,
+  offline fallbacks, 39 tests.
+- [ ] **Week 6 — RAG pipeline**: FAISS + LangChain + Gemini grounded Q&A.
+- [ ] **Week 7 — Docker, CI**.
+
+## ✨ Generative AI Module (Week 5)
+One endpoint, six tasks, two input sources (text or stored document):
+
+`POST /genai/generate { task, text | document_id }` where task ∈
+`summary · explain · faq · interview_questions · action_items · deadlines`.
+`GET /genai/status` reports whether live Gemini is configured.
+
+**Prompt engineering** ([prompts.py](backend/app/genai/prompts.py)): a **system**
+prompt (persona), a **safety** prompt (grounding + injection defence), and
+per-task **user** prompts with explicit output formats for reliable parsing.
+
+**Cost optimization**: input trimming (`GENAI_MAX_INPUT_CHARS`), per-task
+output-token caps, a low-temperature cheap model (`gemini-2.0-flash`), and a
+hash-keyed **response cache** so identical requests never pay twice.
+
+**Resilience**: when no `GEMINI_API_KEY` is set (or the API fails), every task
+falls back to an offline NLP implementation (extractive summary, regex
+deadlines, heuristic action items, etc.) so the feature always returns output.
 
 ## 🧬 NLP Module (Week 4)
 Every technique prefers the real library and **degrades gracefully** to an

@@ -60,7 +60,10 @@ class Settings(BaseSettings):
 
     # --- Generative AI -----------------------------------------------------
     GEMINI_API_KEY: str = ""
-    GEMINI_MODEL: str = "gemini-1.5-flash"
+    GEMINI_MODEL: str = "gemini-2.0-flash"  # current low-cost model
+    # Cost control: cap how much document text is sent to the LLM per call.
+    GENAI_MAX_INPUT_CHARS: int = 12000
+    GENAI_TEMPERATURE: float = 0.3
 
     # --- ML / NLP ----------------------------------------------------------
     EMBEDDING_MODEL: str = "all-MiniLM-L6-v2"
