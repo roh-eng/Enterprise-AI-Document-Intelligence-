@@ -24,13 +24,18 @@ from app.db import models  # noqa: F401
 logger = get_logger(__name__)
 settings = get_settings()
 
+# Ensure the SQLite parent directory exists *before* the engine opens it,
+# otherwise sqlite raises "unable to open database file".
+if settings.sqlite_path is not None:
+    settings.sqlite_path.parent.mkdir(parents=True, exist_ok=True)
+
 # SQLite needs `check_same_thread=False` to be used across FastAPI threads.
 _connect_args = (
-    {"check_same_thread": False} if settings.DATABASE_URL.startswith("sqlite") else {}
+    {"check_same_thread": False} if settings.database_url.startswith("sqlite") else {}
 )
 
 engine = create_engine(
-    settings.DATABASE_URL,
+    settings.database_url,  # resolved (absolute for SQLite) URL
     connect_args=_connect_args,
     pool_pre_ping=True,  # transparently recycle dead connections
     echo=False,
@@ -48,7 +53,7 @@ def init_db() -> None:
     """
     try:
         Base.metadata.create_all(bind=engine)
-        logger.info("Database initialised | url=%s", settings.DATABASE_URL)
+        logger.info("Database initialised | url=%s", settings.database_url)
     except Exception:
         logger.exception("Failed to initialise the database")
         raise

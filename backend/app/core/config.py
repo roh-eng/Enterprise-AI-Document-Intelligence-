@@ -14,10 +14,18 @@ Usage:
 from __future__ import annotations
 
 from functools import lru_cache
+from pathlib import Path
 from typing import List
 
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# Project root = three levels up from this file
+# (backend/app/core/config.py -> backend/app/core -> backend/app -> backend -> ROOT).
+# Anchoring paths here makes the app independent of the current working
+# directory, so it behaves identically whether launched from the repo root,
+# the `backend/` folder, or inside a Docker container.
+BASE_DIR: Path = Path(__file__).resolve().parents[3]
 
 
 class Settings(BaseSettings):
@@ -70,6 +78,31 @@ class Settings(BaseSettings):
         """True only when a non-placeholder Gemini key is configured."""
         key = self.GEMINI_API_KEY.strip()
         return bool(key) and key != "your_gemini_api_key_here"
+
+    @property
+    def sqlite_path(self) -> Path | None:
+        """
+        Absolute filesystem path to the SQLite DB file, or None for non-SQLite
+        backends (e.g. PostgreSQL). Relative paths are anchored to BASE_DIR so
+        the database location never depends on the process's working directory.
+        """
+        url = self.DATABASE_URL
+        if not url.startswith("sqlite"):
+            return None
+        # Strip the "sqlite:///" (3 slashes) or "sqlite:////" (absolute) prefix.
+        raw = url.split("sqlite:///", 1)[-1]
+        path = Path(raw)
+        return path if path.is_absolute() else (BASE_DIR / path).resolve()
+
+    @property
+    def database_url(self) -> str:
+        """
+        The connection URL the engine should actually use. For SQLite we return
+        an absolute path so it resolves consistently from any CWD.
+        """
+        if self.sqlite_path is not None:
+            return f"sqlite:///{self.sqlite_path.as_posix()}"
+        return self.DATABASE_URL
 
 
 @lru_cache
