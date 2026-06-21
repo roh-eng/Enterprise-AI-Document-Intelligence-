@@ -114,3 +114,37 @@ sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) unable to open datab
 2026-06-21 12:27:04,096 | INFO     | httpx | HTTP Request: GET http://testserver/health "HTTP/1.1 200 OK"
 2026-06-21 12:27:04,098 | INFO     | httpx | HTTP Request: GET http://testserver/ "HTTP/1.1 200 OK"
 2026-06-21 12:27:04,098 | INFO     | app.main | Shutting down AI Document Intelligence Platform
+2026-06-21 12:41:43,375 | INFO     | app.core.logging_config | Logging configured | level=INFO | env=development
+2026-06-21 12:41:43,576 | INFO     | httpx | HTTP Request: GET http://testserver/health "HTTP/1.1 200 OK"
+2026-06-21 12:41:43,939 | INFO     | app.services.user_service | Registered new user | id=1 | username=jane
+2026-06-21 12:41:43,941 | INFO     | httpx | HTTP Request: POST http://testserver/auth/register "HTTP/1.1 201 Created"
+2026-06-21 12:41:44,152 | INFO     | app.services.user_service | Registered new user | id=1 | username=jane
+2026-06-21 12:41:44,154 | INFO     | httpx | HTTP Request: POST http://testserver/auth/register "HTTP/1.1 201 Created"
+2026-06-21 12:41:44,158 | INFO     | httpx | HTTP Request: POST http://testserver/auth/register "HTTP/1.1 409 Conflict"
+2026-06-21 12:41:44,352 | INFO     | app.services.user_service | Registered new user | id=1 | username=jane
+2026-06-21 12:41:44,354 | INFO     | httpx | HTTP Request: POST http://testserver/auth/register "HTTP/1.1 201 Created"
+2026-06-21 12:41:44,553 | INFO     | httpx | HTTP Request: POST http://testserver/auth/login "HTTP/1.1 200 OK"
+2026-06-21 12:41:44,557 | INFO     | httpx | HTTP Request: GET http://testserver/auth/me "HTTP/1.1 200 OK"
+2026-06-21 12:41:44,763 | INFO     | app.services.user_service | Registered new user | id=1 | username=jane
+2026-06-21 12:41:44,766 | INFO     | httpx | HTTP Request: POST http://testserver/auth/register "HTTP/1.1 201 Created"
+2026-06-21 12:41:45,010 | INFO     | app.services.user_service | Login failed | bad password | username=jane
+2026-06-21 12:41:45,014 | INFO     | httpx | HTTP Request: POST http://testserver/auth/login "HTTP/1.1 401 Unauthorized"
+2026-06-21 12:41:45,025 | INFO     | httpx | HTTP Request: GET http://testserver/documents "HTTP/1.1 401 Unauthorized"
+2026-06-21 12:41:45,321 | INFO     | app.services.user_service | Registered new user | id=1 | username=jane
+2026-06-21 12:41:45,325 | INFO     | httpx | HTTP Request: POST http://testserver/auth/register "HTTP/1.1 201 Created"
+2026-06-21 12:41:45,568 | INFO     | httpx | HTTP Request: POST http://testserver/auth/login "HTTP/1.1 200 OK"
+2026-06-21 12:41:45,576 | INFO     | app.services.document_service | Stored document | id=1 | user=1 | chars=33 | file=note.txt
+2026-06-21 12:41:45,578 | INFO     | httpx | HTTP Request: POST http://testserver/documents/upload "HTTP/1.1 201 Created"
+2026-06-21 12:41:45,585 | INFO     | httpx | HTTP Request: GET http://testserver/documents "HTTP/1.1 200 OK"
+2026-06-21 12:42:04,646 | INFO     | app.core.logging_config | Logging configured | level=INFO | env=development
+2026-06-21 12:42:25,529 | INFO     | app.core.logging_config | Logging configured | level=INFO | env=development
+2026-06-21 12:42:25,571 | INFO     | app.main | Starting AI Document Intelligence Platform | env=development
+2026-06-21 12:42:25,591 | INFO     | app.db.session | Database initialised | url=sqlite:///D:/project on/data/app.db
+2026-06-21 12:42:25,593 | INFO     | httpx | HTTP Request: GET http://testserver/health "HTTP/1.1 200 OK"
+2026-06-21 12:42:25,819 | INFO     | app.services.user_service | Registered new user | id=1 | username=demo
+2026-06-21 12:42:25,820 | INFO     | httpx | HTTP Request: POST http://testserver/auth/register "HTTP/1.1 201 Created"
+2026-06-21 12:42:26,027 | INFO     | httpx | HTTP Request: POST http://testserver/auth/login "HTTP/1.1 200 OK"
+2026-06-21 12:42:26,034 | INFO     | app.services.document_service | Stored document | id=1 | user=1 | chars=21 | file=demo.txt
+2026-06-21 12:42:26,034 | INFO     | httpx | HTTP Request: POST http://testserver/documents/upload "HTTP/1.1 201 Created"
+2026-06-21 12:42:26,036 | INFO     | httpx | HTTP Request: GET http://testserver/documents "HTTP/1.1 200 OK"
+2026-06-21 12:42:26,036 | INFO     | app.main | Shutting down AI Document Intelligence Platform

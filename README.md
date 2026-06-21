@@ -87,13 +87,34 @@ uvicorn app.main:app --reload
 ---
 
 ## 🧩 Build Roadmap
-- [x] **Step 1 — Foundation**: structure, config, logging, DB layer, FastAPI skeleton.
-- [ ] **Step 2 — Document ingestion**: upload, parse, persist (API + schemas).
-- [ ] **Step 3 — NLP service**: spaCy/NLTK preprocessing, entities, keywords.
-- [ ] **Step 4 — ML service**: XGBoost churn/classification model + training script.
-- [ ] **Step 5 — RAG pipeline**: Sentence-Transformers + FAISS + LangChain + Gemini.
-- [ ] **Step 6 — Streamlit frontend**: professional multi-page UI.
-- [ ] **Step 7 — Tests, Docker, CI**.
+- [x] **Week 1 — Foundation & Auth**: structure, config, logging, SQLite + SQLAlchemy
+  models, JWT auth (register/login), password hashing, Streamlit login + dashboard +
+  upload page, tests.
+- [ ] **Week 2 — NLP service**: spaCy/NLTK preprocessing, entities, keywords.
+- [ ] **Week 3 — ML service**: XGBoost churn/classification model + training script.
+- [ ] **Week 4 — RAG pipeline**: Sentence-Transformers + FAISS + LangChain + Gemini.
+- [ ] **Week 5 — Tests, Docker, CI**.
+
+## 🔑 Authentication flow (Week 1)
+```
+register ─POST /auth/register─▶ user stored (bcrypt hash)
+login    ─POST /auth/login────▶ JWT access token (HS256, 60 min)
+request  ─Authorization: Bearer <token>─▶ get_current_user ─▶ protected route
+```
+
+## 🧪 Running tests
+```bash
+cd backend
+pytest                 # 7 tests: auth + upload, in-memory SQLite
+```
+
+## 🖥️ Running the frontend
+```bash
+# terminal 1 — backend
+cd backend && uvicorn app.main:app --reload
+# terminal 2 — frontend
+streamlit run frontend/app.py        # opens http://localhost:8501
+```
 
 ---
 

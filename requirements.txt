@@ -14,6 +14,12 @@ pydantic-settings>=2.2           # env-driven settings
 streamlit>=1.32
 requests>=2.31                   # frontend -> backend HTTP calls
 
+# --- Authentication & security ---------------------------------------------
+passlib[bcrypt]>=1.7.4           # password hashing (bcrypt backend)
+bcrypt>=4.0.1,<4.1               # pinned <4.1 so passlib 1.7.4 reads its version cleanly (no warning)
+PyJWT>=2.8                       # JWT access tokens (encode/decode)
+email-validator>=2.1             # validates pydantic EmailStr fields
+
 # --- Database / ORM --------------------------------------------------------
 SQLAlchemy>=2.0
 # psycopg2-binary>=2.9           # uncomment when migrating to PostgreSQL

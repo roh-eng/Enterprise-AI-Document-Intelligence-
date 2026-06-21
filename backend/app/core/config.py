@@ -47,6 +47,12 @@ class Settings(BaseSettings):
     # --- Database ----------------------------------------------------------
     DATABASE_URL: str = "sqlite:///./data/app.db"
 
+    # --- Authentication / JWT ----------------------------------------------
+    # SECURITY: override JWT_SECRET_KEY in .env for any non-local deployment.
+    JWT_SECRET_KEY: str = "CHANGE_ME_dev_only_insecure_secret"
+    JWT_ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+
     # --- Generative AI -----------------------------------------------------
     GEMINI_API_KEY: str = ""
     GEMINI_MODEL: str = "gemini-1.5-flash"
