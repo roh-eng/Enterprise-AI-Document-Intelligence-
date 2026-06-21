@@ -97,9 +97,31 @@ uvicorn app.main:app --reload
   Research), TF-IDF, LogReg + RandomForest + XGBoost comparison, full metrics +
   confusion matrix, save/load best model (joblib), predict uploaded docs with
   confidence, 23 tests.
-- [ ] **Week 4 — NLP service**: spaCy/NLTK preprocessing, entities, keywords.
-- [ ] **Week 5 — RAG pipeline**: Sentence-Transformers + FAISS + LangChain + Gemini.
+- [x] **Week 4 — NLP Module**: tokenization, stopword removal, lemmatization,
+  spaCy NER, TF-IDF keyword extraction, sentence embeddings, cosine + document
+  similarity, NLTK-VADER sentiment, NLP dashboard, 29 tests.
+- [ ] **Week 5 — RAG pipeline**: FAISS + LangChain + Gemini.
 - [ ] **Week 6 — Docker, CI**.
+
+## 🧬 NLP Module (Week 4)
+Every technique prefers the real library and **degrades gracefully** to an
+offline implementation, so the app always runs:
+
+| Technique | Primary | Fallback |
+|-----------|---------|----------|
+| Tokenization | spaCy | regex |
+| Lemmatization | spaCy / NLTK WordNet | suffix rules |
+| NER | spaCy (`en_core_web_sm`) | regex heuristics |
+| Keyword extraction | TF-IDF (sklearn) | frequency |
+| Sentence embeddings | sentence-transformers | TF-IDF vectors |
+| Sentiment | NLTK VADER | lexicon + negation |
+
+**Endpoints** (auth required): `POST /nlp/analyze` (text), `POST /nlp/similarity`
+(two texts), `POST /documents/{id}/analyze`, `GET /documents/{id}/similar`.
+
+> Setup for full models: `python -m spacy download en_core_web_sm` and
+> `python -c "import nltk; [nltk.download(p) for p in ['wordnet','omw-1.4','vader_lexicon','punkt']]"`.
+> Embeddings use sentence-transformers if installed, else a TF-IDF fallback.
 
 ## 🤖 ML Classification (Week 3)
 Pipeline: `text → preprocess → TF-IDF (1–2 grams) → classifier`. Three models are

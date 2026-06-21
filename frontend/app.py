@@ -20,6 +20,7 @@ from utils.api_client import APIClient
 from views.auth_view import render_auth
 from views.classify_view import render_classify
 from views.dashboard_view import render_dashboard
+from views.nlp_view import render_nlp
 from views.upload_view import render_upload
 
 st.set_page_config(
@@ -71,7 +72,7 @@ def main() -> None:
     st.sidebar.markdown(f"**Signed in as**\n\n`{user.get('username', 'user')}`")
     page = st.sidebar.radio(
         "Navigate",
-        ["🏠 Dashboard", "📤 Upload", "🔮 Classify"],
+        ["🏠 Dashboard", "📤 Upload", "🔮 Classify", "🧬 NLP"],
         label_visibility="collapsed",
     )
     st.sidebar.divider()
@@ -83,8 +84,10 @@ def main() -> None:
         render_dashboard(client, token, user)
     elif page == "📤 Upload":
         render_upload(client, token)
-    else:
+    elif page == "🔮 Classify":
         render_classify(client, token)
+    else:
+        render_nlp(client, token)
 
 
 if __name__ == "__main__":

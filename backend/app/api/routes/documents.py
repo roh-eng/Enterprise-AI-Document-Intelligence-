@@ -17,9 +17,11 @@ from app.core.config import get_settings
 from app.core.logging_config import get_logger
 from app.db.models import User
 from app.db.session import get_db
+from app.nlp import embeddings
 from app.schemas.classification import ClassificationResult
 from app.schemas.document import DocumentDetail, DocumentRead
-from app.services import classification_service, document_service
+from app.schemas.nlp import NLPAnalysis, SimilarDocumentsResponse
+from app.services import classification_service, document_service, nlp_service
 from app.services.classification_service import ModelNotTrainedError
 from app.services.document_service import (
     DocumentNotFoundError,
@@ -155,6 +157,47 @@ def classify_document(
         confidence=pred.confidence,
         probabilities=pred.probabilities,
         model_name=pred.model_name,
+    )
+
+
+@router.post(
+    "/{document_id}/analyze",
+    response_model=NLPAnalysis,
+    summary="Run NLP analysis on a stored document",
+    responses={404: {"description": "Document not found"}},
+)
+def analyze_document(
+    document_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> NLPAnalysis:
+    """Tokenise, lemmatise, extract entities/keywords, and score sentiment."""
+    try:
+        result = nlp_service.analyze_document(db, current_user.id, document_id)
+    except DocumentNotFoundError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
+    return NLPAnalysis(**result)
+
+
+@router.get(
+    "/{document_id}/similar",
+    response_model=SimilarDocumentsResponse,
+    summary="Find documents similar to this one",
+    responses={404: {"description": "Document not found"}},
+)
+def similar_documents(
+    document_id: int,
+    top_k: int = 5,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> SimilarDocumentsResponse:
+    """Rank the user's other documents by cosine similarity to this one."""
+    try:
+        results = nlp_service.similar_documents(db, current_user.id, document_id, top_k)
+    except DocumentNotFoundError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
+    return SimilarDocumentsResponse(
+        target_id=document_id, backend=embeddings.embedding_backend(), results=results
     )
 
 

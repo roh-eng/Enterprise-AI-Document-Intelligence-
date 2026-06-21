@@ -133,3 +133,26 @@ class APIClient:
         return self._safe_request(
             "GET", "/ml/model-info", headers=self._auth_header(token)
         )
+
+    # -- nlp ---------------------------------------------------------------
+    def nlp_analyze_text(self, token: str, text: str) -> Result:
+        return self._safe_request(
+            "POST", "/nlp/analyze", headers=self._auth_header(token), json={"text": text}
+        )
+
+    def nlp_analyze_document(self, token: str, document_id: int) -> Result:
+        return self._safe_request(
+            "POST", f"/documents/{document_id}/analyze", headers=self._auth_header(token)
+        )
+
+    def nlp_text_similarity(self, token: str, text_a: str, text_b: str) -> Result:
+        return self._safe_request(
+            "POST", "/nlp/similarity",
+            headers=self._auth_header(token),
+            json={"text_a": text_a, "text_b": text_b},
+        )
+
+    def nlp_similar_documents(self, token: str, document_id: int) -> Result:
+        return self._safe_request(
+            "GET", f"/documents/{document_id}/similar", headers=self._auth_header(token)
+        )
