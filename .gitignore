@@ -1,0 +1,39 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# --- Virtual environments ---
+.venv/
+venv/
+env/
+
+# --- Secrets / env ---
+.env
+*.env
+!.env.example
+
+# --- Databases / data artifacts ---
+data/*.db
+data/faiss_index*
+*.sqlite3
+
+# --- ML artifacts (large binaries) ---
+backend/app/ml/artifacts/*.joblib
+
+# --- Logs ---
+logs/*.log
+
+# --- IDE / OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# --- Testing / coverage ---
+.pytest_cache/
+.coverage
+htmlcov/

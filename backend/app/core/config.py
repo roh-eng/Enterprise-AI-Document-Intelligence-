@@ -1,0 +1,83 @@
+"""
+Centralised application configuration.
+
+All runtime settings are loaded from environment variables (or a local `.env`
+file) via pydantic-settings. This gives us a single, type-validated source of
+truth for configuration — no scattered `os.getenv` calls, no untyped strings.
+
+Usage:
+    from app.core.config import get_settings
+    settings = get_settings()
+    print(settings.DATABASE_URL)
+"""
+
+from __future__ import annotations
+
+from functools import lru_cache
+from typing import List
+
+from pydantic import Field, field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Settings(BaseSettings):
+    """Strongly-typed application settings sourced from the environment."""
+
+    # --- Application -------------------------------------------------------
+    APP_NAME: str = "AI Document Intelligence Platform"
+    ENVIRONMENT: str = "development"
+    LOG_LEVEL: str = "INFO"
+    DEBUG: bool = True
+
+    # --- API server --------------------------------------------------------
+    API_HOST: str = "0.0.0.0"
+    API_PORT: int = 8000
+    CORS_ORIGINS: List[str] = Field(
+        default_factory=lambda: ["http://localhost:8501", "http://127.0.0.1:8501"]
+    )
+
+    # --- Database ----------------------------------------------------------
+    DATABASE_URL: str = "sqlite:///./data/app.db"
+
+    # --- Generative AI -----------------------------------------------------
+    GEMINI_API_KEY: str = ""
+    GEMINI_MODEL: str = "gemini-1.5-flash"
+
+    # --- ML / NLP ----------------------------------------------------------
+    EMBEDDING_MODEL: str = "all-MiniLM-L6-v2"
+    SPACY_MODEL: str = "en_core_web_sm"
+    FAISS_INDEX_PATH: str = "./data/faiss_index"
+    CHURN_MODEL_PATH: str = "./backend/app/ml/artifacts/churn_model.joblib"
+
+    # Pydantic config: read from `.env`, ignore unknown keys, case-insensitive.
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+        extra="ignore",
+    )
+
+    @field_validator("CORS_ORIGINS", mode="before")
+    @classmethod
+    def _split_cors(cls, value: object) -> object:
+        """Allow CORS_ORIGINS to be provided as a comma-separated string."""
+        if isinstance(value, str):
+            return [origin.strip() for origin in value.split(",") if origin.strip()]
+        return value
+
+    @property
+    def gemini_enabled(self) -> bool:
+        """True only when a non-placeholder Gemini key is configured."""
+        key = self.GEMINI_API_KEY.strip()
+        return bool(key) and key != "your_gemini_api_key_here"
+
+
+@lru_cache
+def get_settings() -> Settings:
+    """
+    Return a cached Settings instance.
+
+    `lru_cache` ensures the `.env` file is parsed only once per process, so
+    every module shares the same immutable settings object.
+    """
+    return Settings()
