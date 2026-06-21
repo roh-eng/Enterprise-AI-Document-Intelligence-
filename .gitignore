@@ -24,8 +24,10 @@ data/faiss_index*
 # --- ML artifacts (large binaries) ---
 backend/app/ml/artifacts/*.joblib
 
-# --- Logs ---
-logs/*.log
+# --- Logs (match at any depth, e.g. backend/logs/) ---
+logs/
+**/logs/
+*.log
 
 # --- IDE / OS ---
 .vscode/

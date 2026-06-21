@@ -115,3 +115,21 @@ class APIClient:
             "POST", "/documents/upload",
             headers=self._auth_header(token), files=files,
         )
+
+    # -- machine learning --------------------------------------------------
+    def classify_text(self, token: str, text: str) -> Result:
+        return self._safe_request(
+            "POST", "/ml/classify",
+            headers=self._auth_header(token), json={"text": text},
+        )
+
+    def classify_document(self, token: str, document_id: int) -> Result:
+        return self._safe_request(
+            "POST", f"/documents/{document_id}/classify",
+            headers=self._auth_header(token),
+        )
+
+    def model_info(self, token: str) -> Result:
+        return self._safe_request(
+            "GET", "/ml/model-info", headers=self._auth_header(token)
+        )

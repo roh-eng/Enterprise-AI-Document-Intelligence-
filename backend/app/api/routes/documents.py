@@ -17,8 +17,10 @@ from app.core.config import get_settings
 from app.core.logging_config import get_logger
 from app.db.models import User
 from app.db.session import get_db
+from app.schemas.classification import ClassificationResult
 from app.schemas.document import DocumentDetail, DocumentRead
-from app.services import document_service
+from app.services import classification_service, document_service
+from app.services.classification_service import ModelNotTrainedError
 from app.services.document_service import (
     DocumentNotFoundError,
     TextExtractionError,
@@ -122,6 +124,38 @@ def get_document(
     except DocumentNotFoundError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
     return DocumentDetail.model_validate(document)
+
+
+@router.post(
+    "/{document_id}/classify",
+    response_model=ClassificationResult,
+    summary="Classify a stored document",
+    responses={
+        404: {"description": "Document not found"},
+        503: {"description": "Model not trained yet"},
+    },
+)
+def classify_document(
+    document_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ClassificationResult:
+    """
+    Run the ML classifier on a stored document and persist the predicted
+    category + confidence onto the document record.
+    """
+    try:
+        pred = classification_service.classify_document(db, current_user.id, document_id)
+    except DocumentNotFoundError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
+    except ModelNotTrainedError as exc:
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc))
+    return ClassificationResult(
+        category=pred.category,
+        confidence=pred.confidence,
+        probabilities=pred.probabilities,
+        model_name=pred.model_name,
+    )
 
 
 @router.delete(

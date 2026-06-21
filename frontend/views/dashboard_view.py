@@ -69,7 +69,12 @@ def render_dashboard(client: APIClient, token: str, user: dict) -> None:
         with st.container(border=True):
             info_col, action_col = st.columns([4, 1])
             with info_col:
-                st.markdown(f"**{doc['filename']}**  ·  `{doc['file_ext']}`")
+                category = doc.get("category")
+                badge = ""
+                if category:
+                    conf = doc.get("category_confidence") or 0.0
+                    badge = f"  ·  🏷️ **{category}** ({conf * 100:.0f}%)"
+                st.markdown(f"**{doc['filename']}**  ·  `{doc['file_ext']}`{badge}")
                 st.caption(
                     f"ID {doc['id']} · {_format_size(doc['file_size'])} · "
                     f"{doc['num_chars']:,} chars · {doc['status']} · "

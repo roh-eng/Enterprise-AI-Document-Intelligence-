@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -66,6 +66,9 @@ class Document(Base):
     num_chunks: Mapped[int] = mapped_column(Integer, default=0)
     # Processing status: uploaded -> processed (or failed).
     status: Mapped[str] = mapped_column(String(20), default="uploaded")
+    # ML classification result (null until the document is classified).
+    category: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    category_confidence: Mapped[float | None] = mapped_column(Float, nullable=True)
     # Full cleaned text. In production this would move to object storage.
     extracted_text: Mapped[str] = mapped_column(Text, default="")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)

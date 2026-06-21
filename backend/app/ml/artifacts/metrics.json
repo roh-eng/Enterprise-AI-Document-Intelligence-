@@ -1,0 +1,143 @@
+{
+  "best_model": "RandomForest",
+  "categories": [
+    "Invoice",
+    "Legal",
+    "Medical",
+    "Research",
+    "Resume"
+  ],
+  "trained_at": "2026-06-21 13:53:10",
+  "dataset_size": 500,
+  "models": {
+    "LogisticRegression": {
+      "accuracy": 0.976,
+      "precision_macro": 0.9766153846153847,
+      "recall_macro": 0.976,
+      "f1_macro": 0.9759935974389755,
+      "confusion_matrix": [
+        [
+          24,
+          0,
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          24,
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          24,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          0,
+          25,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          25
+        ]
+      ]
+    },
+    "RandomForest": {
+      "accuracy": 0.992,
+      "precision_macro": 0.9923076923076923,
+      "recall_macro": 0.992,
+      "f1_macro": 0.9919967987194879,
+      "confusion_matrix": [
+        [
+          25,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          25,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          24,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          25,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          25
+        ]
+      ]
+    },
+    "XGBoost": {
+      "accuracy": 0.952,
+      "precision_macro": 0.9525185185185185,
+      "recall_macro": 0.952,
+      "f1_macro": 0.951817896389325,
+      "confusion_matrix": [
+        [
+          24,
+          1,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          24,
+          0,
+          1,
+          0
+        ],
+        [
+          1,
+          0,
+          23,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          0,
+          25,
+          0
+        ],
+        [
+          0,
+          0,
+          1,
+          1,
+          23
+        ]
+      ]
+    }
+  }
+}

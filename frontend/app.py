@@ -18,6 +18,7 @@ import streamlit as st
 
 from utils.api_client import APIClient
 from views.auth_view import render_auth
+from views.classify_view import render_classify
 from views.dashboard_view import render_dashboard
 from views.upload_view import render_upload
 
@@ -68,7 +69,11 @@ def main() -> None:
     token = st.session_state["token"]
 
     st.sidebar.markdown(f"**Signed in as**\n\n`{user.get('username', 'user')}`")
-    page = st.sidebar.radio("Navigate", ["🏠 Dashboard", "📤 Upload"], label_visibility="collapsed")
+    page = st.sidebar.radio(
+        "Navigate",
+        ["🏠 Dashboard", "📤 Upload", "🔮 Classify"],
+        label_visibility="collapsed",
+    )
     st.sidebar.divider()
     if st.sidebar.button("Logout", use_container_width=True):
         _logout()
@@ -76,8 +81,10 @@ def main() -> None:
 
     if page == "🏠 Dashboard":
         render_dashboard(client, token, user)
-    else:
+    elif page == "📤 Upload":
         render_upload(client, token)
+    else:
+        render_classify(client, token)
 
 
 if __name__ == "__main__":

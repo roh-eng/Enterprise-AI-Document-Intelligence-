@@ -93,10 +93,31 @@ uvicorn app.main:app --reload
 - [x] **Week 2 — Document Upload System**: PDF/DOCX/TXT upload, on-disk file storage,
   text extraction + cleaning, upload history, document detail, delete, ownership
   enforcement, exception handling, 15 tests.
-- [ ] **Week 3 — NLP service**: spaCy/NLTK preprocessing, entities, keywords.
-- [ ] **Week 4 — ML service**: XGBoost churn/classification model + training script.
+- [x] **Week 3 — ML Module**: document classification (Resume/Invoice/Legal/Medical/
+  Research), TF-IDF, LogReg + RandomForest + XGBoost comparison, full metrics +
+  confusion matrix, save/load best model (joblib), predict uploaded docs with
+  confidence, 23 tests.
+- [ ] **Week 4 — NLP service**: spaCy/NLTK preprocessing, entities, keywords.
 - [ ] **Week 5 — RAG pipeline**: Sentence-Transformers + FAISS + LangChain + Gemini.
 - [ ] **Week 6 — Docker, CI**.
+
+## 🤖 ML Classification (Week 3)
+Pipeline: `text → preprocess → TF-IDF (1–2 grams) → classifier`. Three models are
+trained and compared; the best (by macro-F1) is persisted and served.
+
+| Model | Accuracy | Precision | Recall | F1 |
+|-------|---------:|----------:|-------:|----:|
+| LogisticRegression | 0.976 | 0.977 | 0.976 | 0.976 |
+| **RandomForest (best)** | **0.992** | **0.992** | **0.992** | **0.992** |
+| XGBoost | 0.952 | 0.953 | 0.952 | 0.952 |
+
+> 15% label noise is injected into the **training** set only (test stays clean),
+> so the task is non-trivial — RandomForest wins because bagging is most robust
+> to noisy labels. Retrain anytime with `python -m app.ml.train`.
+
+**ML endpoints** (all require auth): `POST /ml/classify` (text),
+`POST /documents/{id}/classify` (stored doc → persists category + confidence),
+`GET /ml/model-info`.
 
 ## 📑 Document API (Week 2)
 | Method | Path | Purpose | Codes |

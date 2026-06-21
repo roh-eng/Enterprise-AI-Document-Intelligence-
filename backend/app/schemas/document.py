@@ -23,6 +23,8 @@ class DocumentRead(BaseModel):
     num_chars: int
     num_chunks: int
     status: str
+    category: str | None = None
+    category_confidence: float | None = None
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
