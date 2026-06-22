@@ -26,6 +26,13 @@ RUN pip install --no-cache-dir -r requirements.txt \
 COPY backend/ ./backend/
 WORKDIR /app/backend
 
+# Train the document classifier at build time so the model artifact is baked
+# into the image. The .joblib is git-ignored (not in the repo), and training is
+# fast + deterministic (seeded), so every image ships with a ready-to-serve model.
+# ENVIRONMENT=development for this step only, so the production JWT-secret
+# fail-fast never blocks the build (the runtime CMD uses the real env).
+RUN ENVIRONMENT=development python -m app.ml.train
+
 # Drop root privileges.
 RUN useradd --create-home appuser && chown -R appuser /app
 USER appuser
