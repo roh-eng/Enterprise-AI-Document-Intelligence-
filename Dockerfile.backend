@@ -17,8 +17,12 @@ ENV PYTHONUNBUFFERED=1 \
 WORKDIR /app
 
 # Install Python deps first (cached layer) then download model data once.
+# Install CPU-only PyTorch up front from the CPU wheel index so that
+# sentence-transformers doesn't drag in the ~4 GB of NVIDIA CUDA wheels (useless
+# on a CPU host). This keeps the image small (~1.5 GB) and builds fast.
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt \
+RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu \
+    && pip install --no-cache-dir -r requirements.txt \
     && python -m spacy download en_core_web_sm \
     && python -m nltk.downloader -d /usr/share/nltk_data wordnet omw-1.4 vader_lexicon punkt
 
