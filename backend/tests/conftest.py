@@ -42,9 +42,14 @@ def _isolated_storage(tmp_path):
     original_upload, original_faiss = settings.UPLOAD_DIR, settings.FAISS_INDEX_PATH
     settings.UPLOAD_DIR = str(tmp_path / "uploads")
     settings.FAISS_INDEX_PATH = str(tmp_path / "faiss")
+    # Force the offline path in tests: never call the real (paid) Gemini API even
+    # if a real GEMINI_API_KEY is configured in the project .env.
+    original_key = settings.GEMINI_API_KEY
+    settings.GEMINI_API_KEY = ""
     vector_store._INDEX_CACHE.clear()
     yield
     settings.UPLOAD_DIR, settings.FAISS_INDEX_PATH = original_upload, original_faiss
+    settings.GEMINI_API_KEY = original_key
     vector_store._INDEX_CACHE.clear()
 
 

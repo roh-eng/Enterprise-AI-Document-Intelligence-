@@ -15,9 +15,9 @@ from __future__ import annotations
 
 from functools import lru_cache
 from pathlib import Path
-from typing import ClassVar, List
+from typing import ClassVar
 
-from pydantic import Field, field_validator, model_validator
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Project root = three levels up from this file
@@ -40,9 +40,9 @@ class Settings(BaseSettings):
     # --- API server --------------------------------------------------------
     API_HOST: str = "0.0.0.0"
     API_PORT: int = 8000
-    CORS_ORIGINS: List[str] = Field(
-        default_factory=lambda: ["http://localhost:8501", "http://127.0.0.1:8501"]
-    )
+    # Comma-separated string (parsed via the `cors_origins` property). Stored as
+    # a plain str so pydantic-settings doesn't try to JSON-decode it from .env.
+    CORS_ORIGINS: str = "http://localhost:8501,http://127.0.0.1:8501"
 
     # --- Database ----------------------------------------------------------
     DATABASE_URL: str = "sqlite:///./data/app.db"
@@ -60,7 +60,7 @@ class Settings(BaseSettings):
 
     # --- Generative AI -----------------------------------------------------
     GEMINI_API_KEY: str = ""
-    GEMINI_MODEL: str = "gemini-2.0-flash"  # current low-cost model
+    GEMINI_MODEL: str = "gemini-2.5-flash"  # current low-cost model with free-tier quota
     # Cost control: cap how much document text is sent to the LLM per call.
     GENAI_MAX_INPUT_CHARS: int = 12000
     GENAI_TEMPERATURE: float = 0.3
@@ -70,9 +70,11 @@ class Settings(BaseSettings):
     SPACY_MODEL: str = "en_core_web_sm"
     FAISS_INDEX_PATH: str = "./data/faiss_index"
 
-    # Pydantic config: read from `.env`, ignore unknown keys, case-insensitive.
+    # Pydantic config: read from the PROJECT-ROOT `.env` (absolute path, so it
+    # loads no matter which directory the process is launched from — e.g. the
+    # backend runs from backend/, but .env lives at the repo root).
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=str(BASE_DIR / ".env"),
         env_file_encoding="utf-8",
         case_sensitive=False,
         extra="ignore",
@@ -81,13 +83,10 @@ class Settings(BaseSettings):
     # The insecure placeholder secret; safe only for local development.
     _DEV_SECRET: ClassVar[str] = "CHANGE_ME_dev_only_insecure_secret"
 
-    @field_validator("CORS_ORIGINS", mode="before")
-    @classmethod
-    def _split_cors(cls, value: object) -> object:
-        """Allow CORS_ORIGINS to be provided as a comma-separated string."""
-        if isinstance(value, str):
-            return [origin.strip() for origin in value.split(",") if origin.strip()]
-        return value
+    @property
+    def cors_origins(self) -> list[str]:
+        """CORS_ORIGINS parsed into a list of origins."""
+        return [o.strip() for o in self.CORS_ORIGINS.split(",") if o.strip()]
 
     @model_validator(mode="after")
     def _require_secret_in_production(self) -> "Settings":

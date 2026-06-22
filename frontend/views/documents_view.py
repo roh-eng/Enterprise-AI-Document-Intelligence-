@@ -32,15 +32,15 @@ def _fmt_size(num_bytes: int) -> str:
 
 def render_documents(client: APIClient, token: str, user: dict) -> None:
     """Render the document management list."""
-    st.markdown("## 📁 My Documents")
+    st.markdown("## :material/folder_open: My Documents")
     st.caption("Manage your uploaded documents.")
 
     ok, documents = client.list_documents(token)
     if not ok:
-        st.error(f"Could not load documents: {documents}")
+        st.error(f"Could not load documents: {documents}", icon=":material/error:")
         return
     if not documents:
-        st.info("No documents yet. Head to the **Upload** page to add your first file.")
+        st.info("No documents yet. Head to the **Upload** page to add your first file.", icon=":material/info:")
         return
 
     for doc in documents:
@@ -51,7 +51,7 @@ def render_documents(client: APIClient, token: str, user: dict) -> None:
                 badge = ""
                 if category:
                     conf = doc.get("category_confidence") or 0.0
-                    badge = f"  ·  🏷️ **{category}** ({conf * 100:.0f}%)"
+                    badge = f"  ·  :material/label: **{category}** ({conf * 100:.0f}%)"
                 st.markdown(f"**{doc['filename']}**  ·  `{doc['file_ext']}`{badge}")
                 st.caption(
                     f"ID {doc['id']} · {_fmt_size(doc['file_size'])} · "
@@ -59,15 +59,15 @@ def render_documents(client: APIClient, token: str, user: dict) -> None:
                     f"{_fmt_dt(doc['created_at'])}"
                 )
             with action_col:
-                if st.button("🗑️ Delete", key=f"del_{doc['id']}", use_container_width=True):
+                if st.button("Delete", icon=":material/delete:", key=f"del_{doc['id']}", use_container_width=True):
                     del_ok, payload = client.delete_document(token, doc["id"])
                     if del_ok:
-                        st.success(f"Deleted '{doc['filename']}'.")
+                        st.success(f"Deleted '{doc['filename']}'.", icon=":material/check_circle:")
                         st.rerun()
                     else:
-                        st.error(f"Delete failed: {payload}")
+                        st.error(f"Delete failed: {payload}", icon=":material/error:")
 
-            with st.expander("Preview extracted text"):
+            with st.expander("Preview extracted text", icon=":material/visibility:"):
                 detail_ok, detail = client.get_document(token, doc["id"])
                 if detail_ok:
                     text = detail.get("extracted_text", "")

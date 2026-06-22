@@ -25,7 +25,7 @@ def _fmt_dt(value: str) -> str:
 def render_dashboard(client: APIClient, token: str, user: dict) -> None:
     """Render the analytics dashboard."""
     st.markdown(
-        f'<div class="hero"><h1>📊 Analytics Dashboard</h1>'
+        f'<div class="hero"><h1>Analytics Dashboard</h1>'
         f'<p>Welcome back, {user.get("username", "user")} — here is your document intelligence at a glance.</p></div>',
         unsafe_allow_html=True,
     )
@@ -33,18 +33,18 @@ def render_dashboard(client: APIClient, token: str, user: dict) -> None:
 
     ok, data = client.analytics_me(token)
     if not ok:
-        st.error(f"Could not load analytics: {data}")
+        st.error(f"Could not load analytics: {data}", icon=":material/error:")
         return
 
     # --- KPI metric cards ------------------------------------------------
     c1, c2, c3, c4 = st.columns(4)
-    c1.metric("📄 Documents", data["total_documents"])
-    c2.metric("🔤 Characters", f"{data['total_chars']:,}")
-    c3.metric("🧩 Chunks indexed", data["total_chunks"])
-    c4.metric("🔎 Searches", data["total_searches"])
+    c1.metric(":material/description: Documents", data["total_documents"])
+    c2.metric(":material/text_fields: Characters", f"{data['total_chars']:,}")
+    c3.metric(":material/dataset: Chunks indexed", data["total_chunks"])
+    c4.metric(":material/search: Searches", data["total_searches"])
 
     if data["total_documents"] == 0:
-        st.info("No documents yet — upload one to populate your dashboard.")
+        st.info("No documents yet — upload one to populate your dashboard.", icon=":material/info:")
         return
 
     st.divider()
@@ -52,22 +52,22 @@ def render_dashboard(client: APIClient, token: str, user: dict) -> None:
     # --- Charts (responsive 2x2 grid) ------------------------------------
     row1 = st.columns(2)
     with row1[0]:
-        st.markdown("##### 📈 Uploads over time")
+        st.markdown("##### :material/trending_up: Uploads over time")
         ubd = data["uploads_by_date"]
         if ubd:
             st.line_chart({d["date"]: d["count"] for d in ubd}, use_container_width=True)
         else:
             st.caption("No data.")
     with row1[1]:
-        st.markdown("##### 🗂️ File types")
+        st.markdown("##### :material/folder: File types")
         st.bar_chart(data["file_type_distribution"], use_container_width=True)
 
     row2 = st.columns(2)
     with row2[0]:
-        st.markdown("##### 🏷️ Classification distribution")
+        st.markdown("##### :material/label: Classification distribution")
         st.bar_chart(data["category_distribution"], use_container_width=True)
     with row2[1]:
-        st.markdown("##### 😊 Sentiment distribution")
+        st.markdown("##### :material/mood: Sentiment distribution")
         st.bar_chart(data["sentiment_distribution"], use_container_width=True)
 
     st.divider()
@@ -75,7 +75,7 @@ def render_dashboard(client: APIClient, token: str, user: dict) -> None:
     # --- History ---------------------------------------------------------
     h1, h2 = st.columns(2)
     with h1:
-        st.markdown("##### 🔎 Recent searches")
+        st.markdown("##### :material/search: Recent searches")
         searches = data["recent_searches"]
         if searches:
             st.dataframe(
@@ -86,7 +86,7 @@ def render_dashboard(client: APIClient, token: str, user: dict) -> None:
         else:
             st.caption("No searches yet. Try the Chat page.")
     with h2:
-        st.markdown("##### 🆕 Recent uploads")
+        st.markdown("##### :material/upload_file: Recent uploads")
         st.dataframe(
             [{"File": u["filename"], "Type": u["file_ext"], "When": _fmt_dt(u["created_at"])}
              for u in data["recent_uploads"]],

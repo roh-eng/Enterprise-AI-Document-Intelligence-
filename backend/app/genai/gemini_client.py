@@ -70,12 +70,20 @@ def generate(system_instruction: str, user_prompt: str, max_output_tokens: int) 
     genai, types = sdk
 
     client = genai.Client(api_key=settings.GEMINI_API_KEY)
-    config = types.GenerateContentConfig(
-        system_instruction=system_instruction,
-        max_output_tokens=max_output_tokens,
-        temperature=settings.GENAI_TEMPERATURE,
-        safety_settings=_safety_settings(types),
-    )
+    config_kwargs: dict = {
+        "system_instruction": system_instruction,
+        "max_output_tokens": max_output_tokens,
+        "temperature": settings.GENAI_TEMPERATURE,
+        "safety_settings": _safety_settings(types),
+    }
+    # Disable "thinking" on Gemini 2.5 models: thinking tokens otherwise consume
+    # the output budget and truncate the answer (and cost more). Guarded so it's
+    # a no-op on SDKs/models without thinking support.
+    try:
+        config_kwargs["thinking_config"] = types.ThinkingConfig(thinking_budget=0)
+    except Exception:
+        pass
+    config = types.GenerateContentConfig(**config_kwargs)
 
     last_exc: Exception | None = None
     for attempt in range(1, 4):

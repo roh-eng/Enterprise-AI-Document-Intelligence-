@@ -33,10 +33,23 @@ from views.upload_view import render_upload
 
 st.set_page_config(
     page_title="AI Document Intelligence",
-    page_icon="🧠",
+    page_icon=":material/smart_toy:",
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
+# Navigation items as (label, Material icon). Keeping this in one place makes the
+# sidebar and the page dispatch impossible to drift out of sync.
+NAV_ITEMS: list[tuple[str, str]] = [
+    ("Dashboard", ":material/dashboard:"),
+    ("Documents", ":material/folder_open:"),
+    ("Upload", ":material/upload_file:"),
+    ("Classify", ":material/category:"),
+    ("NLP", ":material/psychology:"),
+    ("GenAI", ":material/auto_awesome:"),
+    ("Chat", ":material/forum:"),
+]
+ADMIN_ITEM: tuple[str, str] = ("Admin", ":material/admin_panel_settings:")
 
 # Premium styling: gradient hero banner + elevated metric cards. Works on top of
 # whichever theme (dark default) is active.
@@ -83,12 +96,15 @@ def main() -> None:
     _init_state()
     client = get_client()
 
-    st.sidebar.title("🧠 AI Doc Intelligence")
+    st.sidebar.markdown("### :material/smart_toy: AI Doc Intelligence")
 
     # ---- Not authenticated: show login/register only --------------------
     if not st.session_state["token"]:
         ok, _ = client.health()
-        st.sidebar.success("Backend: connected") if ok else st.sidebar.error("Backend: offline")
+        if ok:
+            st.sidebar.success("Backend connected", icon=":material/check_circle:")
+        else:
+            st.sidebar.error("Backend offline", icon=":material/error:")
         render_auth(client)
         return
 
@@ -98,31 +114,33 @@ def main() -> None:
 
     st.sidebar.markdown(f"**Signed in as**\n\n`{user.get('username', 'user')}`")
     if user.get("is_admin"):
-        st.sidebar.caption("🛡️ Admin")
+        st.sidebar.caption(":material/shield_person: Administrator")
 
-    pages = ["🏠 Dashboard", "📁 Documents", "📤 Upload", "🔮 Classify", "🧬 NLP", "✨ GenAI", "💬 Chat"]
-    if user.get("is_admin"):
-        pages.append("🛡️ Admin")
+    items = NAV_ITEMS + ([ADMIN_ITEM] if user.get("is_admin") else [])
+    labels = [f"{icon} {name}" for name, icon in items]
+    label_to_name = {f"{icon} {name}": name for name, icon in items}
 
-    page = st.sidebar.radio("Navigate", pages, label_visibility="collapsed")
+    choice = st.sidebar.radio("Navigate", labels, label_visibility="collapsed")
+    selected = label_to_name[choice]
+
     st.sidebar.divider()
-    if st.sidebar.button("Logout", use_container_width=True):
+    if st.sidebar.button("Logout", icon=":material/logout:", use_container_width=True):
         _logout()
         st.rerun()
 
-    if page == "🏠 Dashboard":
+    if selected == "Dashboard":
         render_dashboard(client, token, user)
-    elif page == "📁 Documents":
+    elif selected == "Documents":
         render_documents(client, token, user)
-    elif page == "📤 Upload":
+    elif selected == "Upload":
         render_upload(client, token)
-    elif page == "🔮 Classify":
+    elif selected == "Classify":
         render_classify(client, token)
-    elif page == "🧬 NLP":
+    elif selected == "NLP":
         render_nlp(client, token)
-    elif page == "✨ GenAI":
+    elif selected == "GenAI":
         render_genai(client, token)
-    elif page == "💬 Chat":
+    elif selected == "Chat":
         render_chat(client, token)
     else:
         render_admin(client, token)

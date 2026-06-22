@@ -19,7 +19,7 @@ def _render_message(msg: dict) -> None:
         st.markdown(msg["content"])
         sources = msg.get("sources") or []
         if sources:
-            with st.expander(f"📎 {len(sources)} source passage(s)"):
+            with st.expander(f"{len(sources)} source passage(s)", icon=":material/attachment:"):
                 for i, s in enumerate(sources, 1):
                     st.markdown(f"**[{i}]** _(score {s['score']:.3f})_")
                     st.caption(s["text"])
@@ -27,12 +27,12 @@ def _render_message(msg: dict) -> None:
 
 def render_chat(client: APIClient, token: str) -> None:
     """Render the RAG chat page."""
-    st.markdown("## 💬 Chat with your documents")
+    st.markdown("## :material/forum: Chat with your documents")
     st.caption("Ask questions; answers are grounded in retrieved passages with citations.")
 
     ok, docs = client.list_documents(token)
     if not ok or not docs:
-        st.info("No stored documents. Upload one first on the **Upload** page.")
+        st.info("No stored documents. Upload one first on the **Upload** page.", icon=":material/info:")
         return
 
     options = {f"#{d['id']} · {d['filename']}": d["id"] for d in docs}
@@ -41,15 +41,15 @@ def render_chat(client: APIClient, token: str) -> None:
 
     col1, col2 = st.columns([1, 1])
     with col1:
-        if st.button("🔄 (Re)index document", use_container_width=True):
+        if st.button("(Re)index document", icon=":material/sync:", use_container_width=True):
             with st.spinner("Chunking and embedding…"):
                 ok, result = client.rag_index(token, document_id)
             if ok:
-                st.success(f"Indexed into {result['num_chunks']} chunks ({result['backend']}).")
+                st.success(f"Indexed into {result['num_chunks']} chunks ({result['backend']}).", icon=":material/check_circle:")
             else:
-                st.error(f"Indexing failed: {result}")
+                st.error(f"Indexing failed: {result}", icon=":material/error:")
     with col2:
-        if st.button("🗑️ Clear conversation", use_container_width=True):
+        if st.button("Clear conversation", icon=":material/delete_sweep:", use_container_width=True):
             client.rag_clear_history(token, document_id)
             st.rerun()
 
@@ -71,12 +71,12 @@ def render_chat(client: APIClient, token: str) -> None:
                 ok, result = client.rag_chat(token, document_id, question)
             if ok:
                 st.markdown(result["answer"])
-                badge = "🟢 Gemini" if result["source"] == "gemini" else "🟡 Offline (extractive)"
+                badge = ":material/cloud: Gemini" if result["source"] == "gemini" else ":material/cloud_off: Offline (extractive)"
                 st.caption(f"{badge} · model `{result['model_used']}`")
                 if result["sources"]:
-                    with st.expander(f"📎 {len(result['sources'])} source passage(s)"):
+                    with st.expander(f"{len(result['sources'])} source passage(s)", icon=":material/attachment:"):
                         for i, s in enumerate(result["sources"], 1):
                             st.markdown(f"**[{i}]** _(score {s['score']:.3f})_")
                             st.caption(s["text"])
             else:
-                st.error(f"Chat failed: {result}")
+                st.error(f"Chat failed: {result}", icon=":material/error:")
