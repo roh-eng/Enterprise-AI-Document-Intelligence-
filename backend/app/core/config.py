@@ -148,12 +148,22 @@ class Settings(BaseSettings):
     @property
     def database_url(self) -> str:
         """
-        The connection URL the engine should actually use. For SQLite we return
-        an absolute path so it resolves consistently from any CWD.
+        The connection URL the engine should actually use.
+
+        * SQLite — return an absolute path so it resolves consistently from any CWD.
+        * PostgreSQL — normalise the scheme. Managed hosts (Render, Heroku) hand
+          out URLs starting with ``postgres://``, but SQLAlchemy 2.0 dropped that
+          alias and only accepts ``postgresql://`` / ``postgresql+psycopg2://``.
+          We rewrite the prefix so the platform's connection string works as-is.
         """
         if self.sqlite_path is not None:
             return f"sqlite:///{self.sqlite_path.as_posix()}"
-        return self.DATABASE_URL
+        url = self.DATABASE_URL
+        if url.startswith("postgres://"):
+            url = "postgresql+psycopg2://" + url[len("postgres://"):]
+        elif url.startswith("postgresql://"):
+            url = "postgresql+psycopg2://" + url[len("postgresql://"):]
+        return url
 
 
 @lru_cache

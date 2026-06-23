@@ -22,7 +22,7 @@ email-validator>=2.1             # validates pydantic EmailStr fields
 
 # --- Database / ORM --------------------------------------------------------
 SQLAlchemy>=2.0
-# psycopg2-binary>=2.9           # uncomment when migrating to PostgreSQL
+psycopg2-binary>=2.9             # PostgreSQL driver (used when DATABASE_URL is postgres)
 
 # --- Classical ML ----------------------------------------------------------
 scikit-learn>=1.4
